@@ -1,69 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Quote Generator</title>
   <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
-    h1 { margin-bottom: 0.5rem; }
-    #app { display: grid; gap: 1rem; max-width: 900px; }
-    #quoteDisplay {
-      min-height: 84px; padding: 1rem; border: 2px solid #333; border-radius: 12px;
-      background: #f8f8f8; font-size: 1.15rem; display: flex; align-items: center; justify-content: center;
+    body {
+      font-family: Arial, sans-serif;
       text-align: center;
+      margin: 40px;
     }
-    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 1rem; }
-    input, select, button {
-      padding: 0.6rem 0.8rem; border-radius: 10px; border: 1px solid #bbb; font-size: 1rem;
+    #quoteDisplay {
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      width: 60%;
+      min-height: 80px;
+      font-size: 1.2rem;
+      background: #f9f9f9;
     }
-    button { cursor: pointer; border: none; background: #111; color: #fff; }
-    button.secondary { background: #444; }
-    button.ghost { background: #eee; color: #111; border: 1px solid #bbb; }
-    .grow { flex: 1 1 220px; }
-    #status { font-size: 0.95rem; color: #0a7a33; min-height: 1.2em; }
-    small.muted { color: #666; }
+    .form-section {
+      margin-top: 30px;
+    }
+    input, select {
+      padding: 8px;
+      margin: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
-  <small class="muted">Local/Session Storage + JSON Import/Export</small>
 
-  <div id="app">
-    <!-- Quote display + actions -->
-    <div id="quoteDisplay">Click “Show New Quote” to start or import your quotes.</div>
-    <div class="row">
-      <button id="newQuote">Show New Quote</button>
-      <select id="categorySelect" title="Filter by category">
-        <option value="all">All Categories</option>
-      </select>
-      <span id="status" aria-live="polite"></span>
-    </div>
+  <!-- Quote Display -->
+  <div id="quoteDisplay">Click "Show New Quote" to start</div>
+  <button id="newQuote">Show New Quote</button>
 
-    <!-- Add Quote -->
-    <div class="card">
-      <h2>Add a New Quote</h2>
-      <div class="row">
-        <input id="newQuoteText" class="grow" type="text" placeholder="Enter a new quote"/>
-        <input id="newQuoteCategory" class="grow" type="text" placeholder="Enter quote category"/>
-        <button id="addQuoteBtn">Add Quote</button>
-      </div>
-    </div>
+  <!-- Category Filter -->
+  <div class="form-section">
+    <h2>Filter by Category</h2>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
 
-    <!-- Import / Export -->
-    <div class="card">
-      <h2>Import / Export</h2>
-      <div class="row">
-        <button id="exportBtn" class="secondary">Export as JSON</button>
-        <input type="file" id="importFile" accept=".json"/>
-        <button id="resetBtn" class="ghost">Reset to Defaults</button>
-        <button id="clearBtn" class="ghost">Clear Storage</button>
-      </div>
-      <small class="muted">Export downloads your current quotes. Import accepts:
-        <code>[{ "text": "Quote...", "category": "Life" }]</code>
-      </small>
-    </div>
+  <!-- Add Quote Form -->
+  <div class="form-section">
+    <h2>Add a New Quote</h2>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button onclick="addQuote()">Add Quote</button>
+  </div>
+
+  <!-- Import/Export -->
+  <div class="form-section">
+    <h2>Import / Export Quotes</h2>
+    <button onclick="exportToJsonFile()">Export Quotes</button>
+    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
   </div>
 
   <script src="script.js"></script>
