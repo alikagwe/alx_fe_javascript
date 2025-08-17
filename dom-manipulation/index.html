@@ -28,7 +28,7 @@
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
-  <small class="muted">Now with Local/Session Storage + JSON Import/Export</small>
+  <small class="muted">Local/Session Storage + JSON Import/Export</small>
 
   <div id="app">
     <!-- Quote display + actions -->
@@ -47,7 +47,7 @@
       <div class="row">
         <input id="newQuoteText" class="grow" type="text" placeholder="Enter a new quote"/>
         <input id="newQuoteCategory" class="grow" type="text" placeholder="Enter quote category"/>
-        <button onclick="addQuote()">Add Quote</button>
+        <button id="addQuoteBtn">Add Quote</button>
       </div>
     </div>
 
@@ -55,12 +55,12 @@
     <div class="card">
       <h2>Import / Export</h2>
       <div class="row">
-        <button class="secondary" onclick="exportToJsonFile()">Export as JSON</button>
-        <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)"/>
-        <button class="ghost" onclick="resetToDefaults()">Reset to Defaults</button>
-        <button class="ghost" onclick="clearAllStorage()">Clear Storage</button>
+        <button id="exportBtn" class="secondary">Export as JSON</button>
+        <input type="file" id="importFile" accept=".json"/>
+        <button id="resetBtn" class="ghost">Reset to Defaults</button>
+        <button id="clearBtn" class="ghost">Clear Storage</button>
       </div>
-      <small class="muted">Export downloads your current quotes. Import accepts a JSON array of objects like:
+      <small class="muted">Export downloads your current quotes. Import accepts:
         <code>[{ "text": "Quote...", "category": "Life" }]</code>
       </small>
     </div>

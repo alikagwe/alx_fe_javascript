@@ -13,24 +13,25 @@ const DEFAULT_QUOTES = [
   { text: "Do what you can, with what you have, where you are.", category: "Motivation" }
 ];
 
-let quotes = []; // main in-memory store
+let quotes = []; // in-memory store
 
-// DOM
+// DOM refs
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const categorySelect = document.getElementById("categorySelect");
 const statusEl = document.getElementById("status");
+const addQuoteBtn = document.getElementById("addQuoteBtn");
+const exportBtn = document.getElementById("exportBtn");
+const importFileInput = document.getElementById("importFile");
+const resetBtn = document.getElementById("resetBtn");
+const clearBtn = document.getElementById("clearBtn");
 
 /* -------------------------
    Helpers
 ------------------------- */
 const showStatus = (msg, timeout = 1400) => {
   statusEl.textContent = msg || "";
-  if (timeout) {
-    setTimeout(() => {
-      if (statusEl.textContent === msg) statusEl.textContent = "";
-    }, timeout);
-  }
+  if (timeout) setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ""; }, timeout);
 };
 
 const normalizeKey = (q) =>
@@ -64,39 +65,17 @@ function loadQuotes() {
     return [...DEFAULT_QUOTES];
   }
 }
-
 function saveQuotes() {
   localStorage.setItem(LS_KEY_QUOTES, JSON.stringify(quotes));
 }
-
-function saveLastQuote(quote) {
-  try {
-    sessionStorage.setItem(SS_KEY_LAST_QUOTE, JSON.stringify(quote));
-  } catch { /* ignore */ }
+function saveLastQuote(q) {
+  try { sessionStorage.setItem(SS_KEY_LAST_QUOTE, JSON.stringify(q)); } catch {}
 }
-
 function getLastQuote() {
-  try {
-    const raw = sessionStorage.getItem(SS_KEY_LAST_QUOTE);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(sessionStorage.getItem(SS_KEY_LAST_QUOTE) || "null"); } catch { return null; }
 }
-
-function saveLastCategory(cat) {
-  try {
-    sessionStorage.setItem(SS_KEY_LAST_CATEGORY, cat);
-  } catch { /* ignore */ }
-}
-
-function getLastCategory() {
-  try {
-    return sessionStorage.getItem(SS_KEY_LAST_CATEGORY) || "all";
-  } catch {
-    return "all";
-  }
-}
+function saveLastCategory(cat) { try { sessionStorage.setItem(SS_KEY_LAST_CATEGORY, cat); } catch {} }
+function getLastCategory() { try { return sessionStorage.getItem(SS_KEY_LAST_CATEGORY) || "all"; } catch { return "all"; } }
 
 /* -------------------------
    UI / DOM
@@ -114,11 +93,8 @@ function populateCategories(preserveSelection = true) {
   }
 
   const desired = current || getLastCategory() || "all";
-  if ([...categorySelect.options].some(o => o.value === desired)) {
-    categorySelect.value = desired;
-  } else {
-    categorySelect.value = "all";
-  }
+  const hasDesired = [...categorySelect.options].some(o => o.value === desired);
+  categorySelect.value = hasDesired ? desired : "all";
 }
 
 function updateQuoteDisplay(quote) {
@@ -134,10 +110,7 @@ function showRandomQuote() {
   const sel = categorySelect.value;
   const filtered = sel === "all" ? quotes : quotes.filter(q => q.category === sel);
 
-  if (filtered.length === 0) {
-    updateQuoteDisplay(null);
-    return;
-  }
+  if (filtered.length === 0) return updateQuoteDisplay(null);
   const idx = Math.floor(Math.random() * filtered.length);
   updateQuoteDisplay(filtered[idx]);
   showStatus("New quote shown");
@@ -146,14 +119,10 @@ function showRandomQuote() {
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
-
   const text = (textInput.value || "").trim();
   const category = (categoryInput.value || "").trim();
 
-  if (!text || !category) {
-    alert("Please enter both quote text and category.");
-    return;
-  }
+  if (!text || !category) return alert("Please enter both quote text and category.");
 
   const incoming = { text, category };
   const before = quotes.length;
@@ -163,7 +132,6 @@ function addQuote() {
   saveQuotes();
   populateCategories(); // keep selection if possible
 
-  // If the new quote matches current filter, show it; otherwise keep current.
   if (categorySelect.value === "all" || categorySelect.value === incoming.category) {
     updateQuoteDisplay(incoming);
   }
@@ -173,15 +141,12 @@ function addQuote() {
   showStatus(added ? "Quote added!" : "Duplicate ignored");
 }
 
-/* -------------------------
-   Import / Export
-------------------------- */
+
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
 
-  // Timestamped filename
   const stamp = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   const name = `quotes-${stamp.getFullYear()}${pad(stamp.getMonth()+1)}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}${pad(stamp.getSeconds())}.json`;
@@ -210,7 +175,7 @@ function importFromJsonFile(event) {
       const before = quotes.length;
       quotes = dedupeQuotes([...quotes, ...cleaned]);
       saveQuotes();
-      populateCategories(false); // reset to "all" by default after import
+      populateCategories(false);
       categorySelect.value = "all";
       updateQuoteDisplay(getLastQuote() || quotes[0] || null);
       showStatus(`Imported ${quotes.length - before} new ${quotes.length - before === 1 ? "quote" : "quotes"}`);
@@ -219,23 +184,20 @@ function importFromJsonFile(event) {
       console.error(err);
       alert("Import failed: " + err.message);
     } finally {
-      // Clear the file input so the same file can be re-imported if needed
+      
       event.target.value = "";
     }
   };
   reader.readAsText(file);
 }
 
-/* -------------------------
-   Utilities for testing
-------------------------- */
+
 function clearAllStorage() {
   localStorage.removeItem(LS_KEY_QUOTES);
   sessionStorage.removeItem(SS_KEY_LAST_QUOTE);
   sessionStorage.removeItem(SS_KEY_LAST_CATEGORY);
   showStatus("Storage cleared");
 }
-
 function resetToDefaults() {
   quotes = [...DEFAULT_QUOTES];
   saveQuotes();
@@ -245,18 +207,18 @@ function resetToDefaults() {
   showStatus("Reset to defaults");
 }
 
-
+/* -------------------------
+   Init
+------------------------- */
 function init() {
   quotes = loadQuotes();
   populateCategories(false);
 
-  
   const lastCat = getLastCategory();
   if ([...categorySelect.options].some(o => o.value === lastCat)) {
     categorySelect.value = lastCat;
   }
 
-  
   const lastQuote = getLastQuote();
   if (lastQuote && quotes.some(q => normalizeKey(q) === normalizeKey(lastQuote))) {
     updateQuoteDisplay(lastQuote);
@@ -266,27 +228,18 @@ function init() {
     updateQuoteDisplay(null);
   }
 
-  // Events
-  newQuoteBtn.addEventListener("click", showRandomQuote);
-  categorySelect.addEventListener("change", () => {
-    saveLastCategory(categorySelect.value);
-    showRandomQuote();
-  });
+  // Event listeners (no inline handlers)
+  newQuoteBtn?.addEventListener("click", showRandomQuote);
+  categorySelect?.addEventListener("change", () => { saveLastCategory(categorySelect.value); showRandomQuote(); });
+  addQuoteBtn?.addEventListener("click", addQuote);
+  document.getElementById("newQuoteText")?.addEventListener("keydown", (e) => { if (e.key === "Enter") addQuote(); });
+  document.getElementById("newQuoteCategory")?.addEventListener("keydown", (e) => { if (e.key === "Enter") addQuote(); });
 
-  
-  document.getElementById("newQuoteText").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") addQuote();
-  });
-  document.getElementById("newQuoteCategory").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") addQuote();
-  });
+  exportBtn?.addEventListener("click", exportToJsonFile);
+  importFileInput?.addEventListener("change", importFromJsonFile);
+
+  resetBtn?.addEventListener("click", resetToDefaults);
+  clearBtn?.addEventListener("click", clearAllStorage);
 }
 
 init();
-
-
-window.addQuote = addQuote;
-window.exportToJsonFile = exportToJsonFile;
-window.importFromJsonFile = importFromJsonFile;
-window.resetToDefaults = resetToDefaults;
-window.clearAllStorage = clearAllStorage;
