@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Quote Generator</title>
+  <title>Dynamic Quote Generator with Sync</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,6 +20,11 @@
       font-size: 1.2rem;
       background: #f9f9f9;
     }
+    #syncStatus {
+      margin: 10px;
+      font-size: 0.9rem;
+      color: green;
+    }
     .form-section {
       margin-top: 30px;
     }
@@ -35,6 +40,9 @@
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
+
+  <!-- Sync Status -->
+  <div id="syncStatus">Sync Status: Idle</div>
 
   <!-- Quote Display -->
   <div id="quoteDisplay">Click "Show New Quote" to start</div>
