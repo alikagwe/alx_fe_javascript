@@ -1,12 +1,12 @@
-// Quotes array
+
 let quotes = [];
 
-// DOM elements
+
 const quoteDisplay = document.getElementById("quoteDisplay");
 const categoryFilter = document.getElementById("categoryFilter");
 const notification = document.getElementById("notification");
 
-// Load quotes from local storage
+
 function loadQuotes() {
   const savedQuotes = localStorage.getItem("quotes");
   if (savedQuotes) {
@@ -46,7 +46,7 @@ function showRandomQuote() {
   sessionStorage.setItem("lastQuote", filteredQuotes[randomIndex].text);
 }
 
-// Add a new quote
+
 function addQuote() {
   const newQuoteText = document.getElementById("newQuoteText").value.trim();
   const newQuoteCategory = document.getElementById("newQuoteCategory").value.trim();
@@ -62,7 +62,7 @@ function addQuote() {
   }
 }
 
-// Populate categories in filter dropdown
+
 function populateCategories() {
   const categories = [...new Set(quotes.map(q => q.category))];
   categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
@@ -73,7 +73,7 @@ function populateCategories() {
     categoryFilter.appendChild(option);
   });
 
-  // Restore last selected category from storage
+  
   const lastFilter = localStorage.getItem("lastFilter");
   if (lastFilter && [...categoryFilter.options].some(o => o.value === lastFilter)) {
     categoryFilter.value = lastFilter;
@@ -86,7 +86,7 @@ function filterQuotes() {
   showRandomQuote();
 }
 
-// Export quotes to JSON file
+
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -115,7 +115,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// ---------------- SERVER SYNC SIMULATION ---------------- //
+
 
 // Fetch quotes from mock server
 async function fetchQuotesFromServer() {
@@ -163,10 +163,10 @@ async function syncQuotes() {
 
     quotes = merged;
     saveQuotes();
-    showNotification("Quotes synced with server. (Server data prioritized)");
-  }
-}
 
+    console.log("Quotes synced with server. (Server data prioritized)");
+    showNotification("Quotes synced with server!"); // ✅ Cleaner UI message
+  }
 // Periodically sync every 30 seconds
 setInterval(syncQuotes, 30000);
 
